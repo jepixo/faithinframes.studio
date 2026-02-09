@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useSpring, useAnimation } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useSpring, useAnimation, useTransform, useMotionValueEvent } from 'framer-motion';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -56,10 +56,16 @@ const App: React.FC = () => {
 
     const { scrollYProgress } = useScroll({ container: scrollRef });
 
-    const scaleX = useSpring(scrollYProgress, {
+    const smoothProgress = useSpring(scrollYProgress, {
         stiffness: 100,
         damping: 30,
         restDelta: 0.001,
+    });
+
+    const [scrollPercent, setScrollPercent] = useState(0);
+
+    useMotionValueEvent(scrollYProgress, "change", (latest) => {
+        setScrollPercent(Math.round(latest * 100));
     });
 
     useEffect(() => {
@@ -141,7 +147,7 @@ const App: React.FC = () => {
 
     return (
         <div className="relative min-h-screen selection:bg-white selection:text-black">
-            
+
             <AnimatePresence mode="wait">
                 {isLoading ? (
                     <><motion.div
@@ -421,13 +427,12 @@ const App: React.FC = () => {
                         </div>
                         <div className="fixed bottom-[35px] right-[120px] z-[160] flex items-center gap-4 pointer-events-none">
                             {/* Record Status - Red Indicator (ISOLATED) */}
-                            <div
-                                className="flex items-center gap-2"
-                                style={{ isolation: 'isolate', mixBlendMode: 'normal' }}
-                            >
+                            <div className="flex items-center gap-2" style={{ isolation: 'isolate', mixBlendMode: 'normal' }} >
                                 <div className="w-2.5 h-2.5 bg-[#ff0000] rounded-full animate-blink shadow-[0_0_10px_rgba(255,0,0,0.6)]" />
                             </div>
                         </div>
+
+                        
                     </motion.div>
 
                 )}
