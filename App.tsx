@@ -150,14 +150,15 @@ const App: React.FC = () => {
 
             <AnimatePresence mode="wait">
                 {isLoading ? (
-                    <><motion.div
+                    <>
+                    <motion.div
                         key="loader"
                         className="fixed inset-0 z-[200] bg-black flex items-center justify-center flex-col p-10"
                         // exit={{ y: '-100%' }}
                         transition={{ duration: 1, ease: [0.76, 0, 0.24, 1] }}
                     >
                         <div className="flex flex-col items-center">
-                            <motion.div
+                            {/* <motion.div
                                 initial={{ width: 0 }}
                                 animate={{
                                     width: '100%',
@@ -175,7 +176,7 @@ const App: React.FC = () => {
                                 }}
                                 transition={{ duration: 2, delay: 0.7, ease: "easeOut" }}
                                 className="h-px bg-white w-64 mb-10"
-                            />
+                            /> */}
                             {/* Handheld Content Wrapper */}
                             <motion.div
                                 animate={startIntro
