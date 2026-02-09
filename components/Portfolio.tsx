@@ -28,7 +28,8 @@ const ProjectCard = ({
   // Calculate when this card should be "focused"
   // The scroll goes from 0 to 1. There are (total) cards plus an end section.
   const centerPoint = index / (total);
-  const range = 0.15; // The "width" of the focus effect in scroll units
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const range = isMobile ? 0.3 : 0.2; // Wider range on mobile to prevent quick fading
 
   const grayscale = useTransform(
     scrollYProgress,
@@ -117,11 +118,11 @@ const Portfolio: React.FC<PortfolioProps> = ({ scrollContainer }) => {
     <div ref={sectionRef} id="portfolio" className="relative h-[400vh] bg-neutral-900">
       <div className="sticky top-5 h-screen w-full flex items-center overflow-hidden">
 
-        {/* Centered Portfolio Reel Title - Kept Top position from request */}
-        <div className="absolute top-10 left-1/2 -translate-x-1/2 z-10 flex items-center gap-6 whitespace-nowrap">
+        {/* Centered Portfolio Reel Title to avoid overlap with Logo */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-10 flex items-center gap-6 whitespace-nowrap pb-8">
           <div className="w-12 md:w-20 h-[1px] bg-neutral-800 hidden sm:block" />
           <h2 className="text-[10px] md:text-[12px] font-mono tracking-[0.5em] text-neutral-500 uppercase">
-            [ PORTFOLIO REEL ]
+            [ PORTFOLIO REELS ]
           </h2>
           <div className="w-12 md:w-20 h-[1px] bg-neutral-800 hidden sm:block" />
         </div>
