@@ -7,7 +7,7 @@ const About: React.FC = () => {
     <section id="about" className="min-h-screen py-20 md:py-40 md:pl-20 md:pr-10 md:pt-25 pt-24 pl-4 pr-4 bg-white text-black overflow-hidden flex items-start md:items-center">
       <div className="container mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-20">
-          <div className="lg:col-span-6">
+          <div className="lg:col-span-6 xl:col-span-7">
             <motion.h2
               initial={{ x: -100, opacity: 0 }}
               whileInView={{ x: 0, opacity: 1 }}
@@ -19,7 +19,7 @@ const About: React.FC = () => {
               FRAME.
             </motion.h2>
           </div>
-          <div className="lg:col-span-6 pt-0 md:pt-12 flex flex-col justify-between">
+          <div className="lg:col-span-5 pt-0 md:pt-12 flex flex-col justify-between">
             <div>
               <div className="font-mono text-[10px] uppercase tracking-[0.5em] text-neutral-400 mb-8">[ INTRO SEQUENCE ]</div>
               <p className="text-2xl md:text-3xl font-bold tracking-tighter leading-none mb-10 font-heading">

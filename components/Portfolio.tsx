@@ -1,4 +1,4 @@
-import React, { useRef, RefObject } from 'react';
+import React, { useRef, RefObject, useState, useLayoutEffect } from 'react';
 import { motion, useScroll, useTransform, useMotionTemplate, MotionValue } from 'framer-motion';
 
 const projects = [
@@ -13,17 +13,19 @@ interface PortfolioProps {
   scrollContainer?: RefObject<HTMLElement>;
 }
 
+interface ProjectCardProps {
+  project: typeof projects[0];
+  index: number;
+  total: number;
+  scrollYProgress: MotionValue<number>;
+}
+
 // Sub-component to handle individual card transforms based on global scroll
-const ProjectCard = ({
+const ProjectCard: React.FC<ProjectCardProps> = ({
   project,
   index,
   total,
   scrollYProgress
-}: {
-  project: typeof projects[0],
-  index: number,
-  total: number,
-  scrollYProgress: MotionValue<number>
 }) => {
   // Calculate when this card should be "focused"
   // The scroll goes from 0 to 1. There are (total) cards plus an end section.
@@ -105,14 +107,45 @@ const ProjectCard = ({
 
 const Portfolio: React.FC<PortfolioProps> = ({ scrollContainer }) => {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const endElementRef = useRef<HTMLDivElement>(null);
+  const [scrollRange, setScrollRange] = useState(0);
+
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     container: scrollContainer,
     offset: ["start start", "end end"]
   });
 
-  // Keep the previous offset and padding to ensure layout consistency
-  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-95%"]);
+  useLayoutEffect(() => {
+    const calculateScroll = () => {
+      if (!contentRef.current || !endElementRef.current) return;
+
+      const viewportWidth = window.innerWidth;
+      const endElement = endElementRef.current;
+
+      // Calculate how much we need to shift the whole container (contentRef)
+      // to bring the center of the end element to the center of the viewport.
+
+      const elementCenter = endElement.offsetLeft + endElement.offsetWidth / 2;
+      const targetX = elementCenter - viewportWidth / 2;
+
+      setScrollRange(targetX);
+    };
+
+    const observer = new ResizeObserver(calculateScroll);
+    if (contentRef.current) observer.observe(contentRef.current);
+    if (endElementRef.current) observer.observe(endElementRef.current);
+
+    calculateScroll();
+    window.addEventListener('resize', calculateScroll);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', calculateScroll);
+    };
+  }, []);
+
+  const x = useTransform(scrollYProgress, [0, 1], [0, -scrollRange]);
 
   return (
     <div ref={sectionRef} id="portfolio" className="relative h-[400vh] bg-neutral-900">
@@ -127,9 +160,10 @@ const Portfolio: React.FC<PortfolioProps> = ({ scrollContainer }) => {
           <div className="w-12 md:w-20 h-[1px] bg-neutral-800 hidden sm:block" />
         </div>
 
-        <motion.div style={{ x }} className="flex gap-20 px-20 items-center pl-72">
+        <motion.div ref={contentRef} style={{ x }} className="flex gap-20 px-20 items-center pl-72">
           {projects.map((project, index) => (
             <ProjectCard
+              key={project.id}
               project={project}
               index={index}
               total={projects.length}
@@ -138,7 +172,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ scrollContainer }) => {
           ))}
 
           {/* End section with Start Journey button */}
-          <div className="flex-shrink-0 w-[60vw] flex items-center justify-center pr-40">
+          <div ref={endElementRef} className="flex-shrink-0 w-[60vw] flex items-center justify-center pr-40">
             <motion.a
               href="#contact"
               className="group relative flex flex-col items-center pointer-events-auto"

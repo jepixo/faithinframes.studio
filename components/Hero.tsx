@@ -26,7 +26,7 @@ const Hero: React.FC = () => {
       {/* Main Content */}
       <motion.div style={{ opacity }} className="relative z-30 container mx-auto px-12">
         <div className="max-w-[1200px]">
-          <h1 className="text-[12vw] font-[900] leading-[0.85] tracking-tighter uppercase mb-12 font-heading">
+          <h1 className="text-[10vmax] font-[900] leading-[0.85] tracking-tighter uppercase mb-12 font-heading">
             WE CAPTURE<br />
             <span className="outline-text">MOMENTS</span><br />
             THAT LAST
