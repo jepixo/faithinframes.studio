@@ -34,7 +34,7 @@ const CameraHUD: React.FC = () => {
       {/* Content Container */}
       <div className="absolute inset-4 flex flex-col justify-between h-full">
 
-        {/* Top Row - Meta Section */}
+        {/* Top Row - Battery */}
         <div className="flex justify-end items-start pr-4 pt-4">
 
           <div

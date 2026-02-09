@@ -1,6 +1,10 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, RefObject } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+
+interface PortfolioProps {
+  scrollContainer?: RefObject<HTMLElement>;
+}
 
 const projects = [
   { id: '01', title: 'ETERNAL VOWS', type: 'WEDDING FILM', img: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=1600' },
@@ -10,20 +14,20 @@ const projects = [
   { id: '05', title: 'APEX ASCENT', type: 'SPORTS', img: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&q=80&w=1600' },
 ];
 
-const Portfolio: React.FC = () => {
+const Portfolio: React.FC<PortfolioProps> = ({ scrollContainer }) => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
+    container: scrollContainer,
     offset: ["start start", "end end"]
   });
 
   // Using -85% to ensure the "Start Journey" section is fully revealed at the end of the scroll
-  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-88%"]);
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-98%"]);
 
   return (
     <div ref={sectionRef} id="portfolio" className="relative h-[400vh] bg-neutral-900">
       <div className="sticky top-5 h-screen w-full flex items-center overflow-hidden">
-
         {/* Centered Portfolio Reel Title to avoid overlap with Logo */}
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-10 flex items-center gap-6 whitespace-nowrap pb-8">
           <div className="w-12 md:w-20 h-[1px] bg-neutral-800 hidden sm:block" />
@@ -32,7 +36,6 @@ const Portfolio: React.FC = () => {
           </h2>
           <div className="w-12 md:w-20 h-[1px] bg-neutral-800 hidden sm:block" />
         </div>
-
         <motion.div style={{ x }} className="flex gap-20 px-20 items-center pl-72">
           {projects.map((project) => (
             <motion.div
