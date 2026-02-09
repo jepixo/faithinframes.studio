@@ -1,10 +1,5 @@
-
 import React, { useRef, RefObject } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-
-interface PortfolioProps {
-  scrollContainer?: RefObject<HTMLElement>;
-}
+import { motion, useScroll, useTransform, useMotionTemplate, MotionValue } from 'framer-motion';
 
 const projects = [
   { id: '01', title: 'ETERNAL VOWS', type: 'WEDDING FILM', img: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=1600' },
@@ -14,6 +9,99 @@ const projects = [
   { id: '05', title: 'APEX ASCENT', type: 'SPORTS', img: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&q=80&w=1600' },
 ];
 
+interface PortfolioProps {
+  scrollContainer?: RefObject<HTMLElement>;
+}
+
+// Sub-component to handle individual card transforms based on global scroll
+const ProjectCard = ({
+  project,
+  index,
+  total,
+  scrollYProgress
+}: {
+  project: typeof projects[0],
+  index: number,
+  total: number,
+  scrollYProgress: MotionValue<number>
+}) => {
+  // Calculate when this card should be "focused"
+  // The scroll goes from 0 to 1. There are (total) cards plus an end section.
+  const centerPoint = index / (total);
+  const range = 0.15; // The "width" of the focus effect in scroll units
+
+  const grayscale = useTransform(
+    scrollYProgress,
+    [centerPoint - range, centerPoint, centerPoint + range],
+    [100, 0, 100]
+  );
+
+  const brightness = useTransform(
+    scrollYProgress,
+    [centerPoint - range, centerPoint, centerPoint + range],
+    [0.6, 1.2, 0.6]
+  );
+
+  const scale = useTransform(
+    scrollYProgress,
+    [centerPoint - range, centerPoint, centerPoint + range],
+    [0.92, 1.05, 0.92]
+  );
+
+  const filter = useMotionTemplate`grayscale(${grayscale}%) brightness(${brightness})`;
+
+  return (
+    <motion.div
+      className="relative flex-shrink-0 group"
+      style={{ scale }}
+    >
+      <motion.div
+        style={{ filter }}
+        className="w-[85vw] md:w-[65vw] lg:w-[50vw] aspect-[16/9] overflow-hidden bg-neutral-950 border border-neutral-800 relative"
+      >
+        <img
+          src={project.img}
+          className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
+          alt={project.title}
+        />
+
+        {/* Hover Overlay: Meta-data focus, no overlapping title */}
+        <div className="absolute inset-0 p-8 flex flex-col justify-between opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none bg-black/40 backdrop-blur-[2px]">
+          <div className="flex justify-between items-start translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-75">
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest">PROJECT CODE</span>
+              <span className="text-white text-xs font-black font-mono">FF-2026-{project.id}</span>
+            </div>
+            <span className="text-white text-[10px] font-mono border border-white/20 px-2 py-1">RAW 4K // 24FPS</span>
+          </div>
+
+          <div className="flex justify-between items-end translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-150">
+            <div>
+              <p className="text-white/60 text-[10px] font-mono uppercase tracking-[0.3em] mb-2">CATEGORY / {project.type}</p>
+              <div className="flex gap-4">
+                <div className="h-1 w-12 bg-white/20 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-red-600 w-1/3 group-hover:translate-x-12 transition-transform duration-1000" />
+                </div>
+              </div>
+            </div>
+            <div className="pointer-events-auto flex items-center gap-4">
+              <span className="text-[10px] font-mono text-white opacity-0 group-hover:opacity-100 transition-opacity delay-300 uppercase tracking-widest">VIEW PROJECT</span>
+              <a href="#contact" className="bg-white text-black w-12 h-12 rounded-full flex items-center justify-center hover:bg-red-600 hover:text-white transition-all transform hover:rotate-45">
+                <span className="text-xl">↗</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Project Title below card */}
+      <h3 className="mt-8 text-6xl md:text-8xl font-black tracking-tighter uppercase text-white/10 group-hover:text-white group-hover:tracking-normal transition-all duration-700 ease-in-out font-heading">
+        {project.title}
+      </h3>
+    </motion.div>
+  );
+};
+
 const Portfolio: React.FC<PortfolioProps> = ({ scrollContainer }) => {
   const sectionRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -22,67 +110,30 @@ const Portfolio: React.FC<PortfolioProps> = ({ scrollContainer }) => {
     offset: ["start start", "end end"]
   });
 
-  // Using -85% to ensure the "Start Journey" section is fully revealed at the end of the scroll
+  // Keep the previous offset and padding to ensure layout consistency
   const x = useTransform(scrollYProgress, [0, 1], ["0%", "-98%"]);
 
   return (
     <div ref={sectionRef} id="portfolio" className="relative h-[400vh] bg-neutral-900">
       <div className="sticky top-5 h-screen w-full flex items-center overflow-hidden">
-        {/* Centered Portfolio Reel Title to avoid overlap with Logo */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-10 flex items-center gap-6 whitespace-nowrap pb-8">
+
+        {/* Centered Portfolio Reel Title - Kept Top position from request */}
+        <div className="absolute top-10 left-1/2 -translate-x-1/2 z-10 flex items-center gap-6 whitespace-nowrap">
           <div className="w-12 md:w-20 h-[1px] bg-neutral-800 hidden sm:block" />
           <h2 className="text-[10px] md:text-[12px] font-mono tracking-[0.5em] text-neutral-500 uppercase">
-            [ PORTFOLIO REELS ]
+            [ PORTFOLIO REEL ]
           </h2>
           <div className="w-12 md:w-20 h-[1px] bg-neutral-800 hidden sm:block" />
         </div>
+
         <motion.div style={{ x }} className="flex gap-20 px-20 items-center pl-72">
-          {projects.map((project) => (
-            <motion.div
-              key={project.id}
-              className="relative flex-shrink-0 group"
-            >
-              <div className="w-[85vw] md:w-[65vw] lg:w-[50vw] aspect-[16/9] overflow-hidden bg-neutral-950 border border-neutral-800 relative">
-                <img
-                  src={project.img}
-                  className="w-full h-full object-cover grayscale brightness-75 group-hover:grayscale-0 group-hover:brightness-100 group-hover:scale-105 transition-all duration-1000 ease-out"
-                  alt={project.title}
-                />
-
-                {/* Hover Overlay: Meta-data focus, no overlapping title */}
-                <div className="absolute inset-0 p-8 flex flex-col justify-between opacity-0 group-hover:opacity-100 transition-all duration-500 pointer-events-none bg-black/40 backdrop-blur-[2px]">
-                  <div className="flex justify-between items-start translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-75">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest">PROJECT CODE</span>
-                      <span className="text-white text-xs font-black font-mono">FF-2026-{project.id}</span>
-                    </div>
-                    <span className="text-white text-[10px] font-mono border border-white/20 px-2 py-1">RAW 4K // 24FPS</span>
-                  </div>
-
-                  <div className="flex justify-between items-end translate-y-4 group-hover:translate-y-0 transition-transform duration-500 delay-150">
-                    <div>
-                      <p className="text-white/60 text-[10px] font-mono uppercase tracking-[0.3em] mb-2">CATEGORY / {project.type}</p>
-                      <div className="flex gap-4">
-                        <div className="h-1 w-12 bg-white/20 relative overflow-hidden">
-                          <div className="absolute inset-0 bg-red-600 w-1/3 group-hover:translate-x-12 transition-transform duration-1000" />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="pointer-events-auto flex items-center gap-4">
-                      <span className="text-[10px] font-mono text-white opacity-0 group-hover:opacity-100 transition-opacity delay-300 uppercase tracking-widest">VIEW PROJECT</span>
-                      <a href="#contact" className="bg-white text-black w-12 h-12 rounded-full flex items-center justify-center hover:bg-red-600 hover:text-white transition-all transform hover:rotate-45">
-                        <span className="text-xl">↗</span>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Project Title below card */}
-              <h3 className="mt-8 text-6xl md:text-8xl font-black tracking-tighter uppercase text-white/10 group-hover:text-white group-hover:tracking-normal transition-all duration-700 ease-in-out font-heading">
-                {project.title}
-              </h3>
-            </motion.div>
+          {projects.map((project, index) => (
+            <ProjectCard
+              project={project}
+              index={index}
+              total={projects.length}
+              scrollYProgress={scrollYProgress}
+            />
           ))}
 
           {/* End section with Start Journey button */}
