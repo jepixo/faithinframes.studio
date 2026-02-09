@@ -112,7 +112,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ scrollContainer }) => {
   });
 
   // Keep the previous offset and padding to ensure layout consistency
-  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-98%"]);
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-95%"]);
 
   return (
     <div ref={sectionRef} id="portfolio" className="relative h-[400vh] bg-neutral-900">
