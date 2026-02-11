@@ -399,7 +399,7 @@ const App: React.FC = () => {
                             initial={{ opacity: 0, filter: 'blur(80px)', scale: 1.1 }}
                             animate={{ opacity: 1, filter: isIdle ? "blur(10px)" : "blur(0px)", scale: 1 }}
                             transition={{
-                                duration:isIdle ?0.7: 1.8,
+                                duration:isIdle ?0.7: 1.3,
                                 delay:isIdle ?0: 0.8,
                                 ease: [0.22, 1, 0.36, 1]
                             }} className="flex-1 overflow-hidden">
@@ -437,9 +437,6 @@ const App: React.FC = () => {
                                         transition={{ duration: 2, repeat: Infinity }}
                                         className="absolute inset-0 border border-white/20 rounded-full"
                                     />
-                                    <div className="flex flex-col items-center gap-1">
-                                        <span className="text-[12px] font-mono tracking-[0.8em] text-white/40 uppercase">System Idle</span>
-                                    </div>
                                 </motion.div>
                             </motion.div>
                             )}
