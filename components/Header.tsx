@@ -1,13 +1,59 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Camera, Play, Settings, Waves, Aperture, Info } from 'lucide-react';
 
 interface HeaderProps {
   onInquire: () => void;
+  isIdle: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ onInquire }) => {
+const BouncingLogo: React.FC = () => {
+    const [pos, setPos] = useState({ x: 38, y: 30 });
+    const vel = useRef({ x: 1.5, y: 1.5 });
+    const frameId = useRef<number | null>(null);
+    const logoRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const update = () => {
+            setPos(prev => {
+                let nextX = prev.x + vel.current.x;
+                let nextY = prev.y + vel.current.y;
+                
+                const width = logoRef.current?.offsetWidth || 200;
+                const height = logoRef.current?.offsetHeight || 40;
+
+                if (nextX <= 0 || nextX + width >= window.innerWidth) {
+                    vel.current.x *= -1;
+                    nextX = prev.x + vel.current.x;
+                }
+                if (nextY <= 0 || nextY + height >= window.innerHeight) {
+                    vel.current.y *= -1;
+                    nextY = prev.y + vel.current.y;
+                }
+                return { x: nextX, y: nextY };
+            });
+            frameId.current = requestAnimationFrame(update);
+        };
+        frameId.current = requestAnimationFrame(update);
+        return () => { if (frameId.current) cancelAnimationFrame(frameId.current); };
+    }, []);
+
+    return (
+        <div 
+            ref={logoRef}
+            className="fixed z-[500] pointer-events-none select-none blend-difference"
+            style={{ left: pos.x, top: pos.y }}
+        >
+            <span className="text-2xl  font-black tracking-tighter text-white whitespace-nowrap drop-shadow-[0_0_30px_rgba(255,255,255,0.6)] font-heading uppercase">
+                FAITH IN FRAMES
+            </span>
+        </div>
+    );
+};
+
+
+
+const Header: React.FC<HeaderProps> = ({ onInquire, isIdle }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [activePage, setActivePage] = useState(1);
@@ -97,13 +143,13 @@ const Header: React.FC<HeaderProps> = ({ onInquire }) => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 w-full z-[190] p-8  pointer-events-none blend-difference">
+      <header className={`fixed top-0 left-0 w-full z-[190] p-[30px] pointer-events-none transition-opacity duration-1700 blend-difference ${isIdle ? 'opacity-0' : 'opacity-100'}`}>
         <div className="flex justify-between items-start w-full">
           <div className="pointer-events-auto blend-difference">
             <motion.a
               href="#"
               onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-              className="text-2xl font-black tracking-tighter block font-heading text-white pl-2"
+              className="text-2xl font-black tracking-tighter block font-heading text-white pl-[8px]"
             >
               FAITH  IN  FRAMES
             </motion.a>
@@ -146,7 +192,9 @@ const Header: React.FC<HeaderProps> = ({ onInquire }) => {
           </div>
         </div>
       </header>
-
+      <AnimatePresence>
+        {isIdle && <BouncingLogo />}
+      </AnimatePresence>
       <AnimatePresence>
         {isOpen && (
           <motion.div

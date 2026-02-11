@@ -1,8 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Camera } from 'lucide-react';
 
-const CameraHUD: React.FC = () => {
+interface CameraHUDProps {
+  isIdle?: boolean;
+}
+
+const CameraHUD: React.FC<CameraHUDProps> = ({ isIdle }) => {
   const [time, setTime] = useState('');
   const [frame, setFrame] = useState(0);
 
@@ -24,15 +29,12 @@ const CameraHUD: React.FC = () => {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-[150] pointer-events-none font-mono select-none blend-difference">
-      {/* Viewfinder Outer Frame - BLENDED */}
-      <div
-        className="absolute inset-4 "
-        style={{ mixBlendMode: 'difference' }}
-      />
-
+    <div className="fixed inset-0 z-[150] pointer-events-none font-mono select-none blend-difference"
+    style={{ filter: isIdle ? "blur(2px)" : "blur(0px)", }}
+    >
+      
       {/* Content Container */}
-      <div className="absolute inset-4 flex flex-col justify-end h-full">
+      <div className="absolute inset-4 flex flex-col justify-end h-full" >
 
         
         {/* RGB Meters - NO BLEND (Isolated to keep colors pure) */}
@@ -53,6 +55,7 @@ const CameraHUD: React.FC = () => {
             </div>
           ))}
         </div>
+      
 
 
         {/* Bottom Row */}

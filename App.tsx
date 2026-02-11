@@ -20,8 +20,19 @@ const App: React.FC = () => {
     const [isAppLoaded, setIsAppLoaded] = useState(false);
     const [hasEntered, setHasEntered] = useState(false);
     const [expanded, setExpanded] = useState(false);
+    const [isIdle, setIsIdle] = useState(false);
     const cursorControls = useAnimation();
     const cameraControls = useAnimation();
+    // Use ReturnType<typeof setTimeout> to fix TypeScript error in browser environments
+    const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    const resetIdleTimer = () => {
+        setIsIdle(false);
+        if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+        idleTimerRef.current = setTimeout(() => {
+            setIsIdle(true);
+        }, 60000); // Updated to 30 seconds idle threshold
+    };
 
     const handleClick = async () => {
         if (hasClicked) return;
@@ -96,10 +107,17 @@ const App: React.FC = () => {
 
         const handleMouseMove = (e: MouseEvent) => {
             setMousePos({ x: e.clientX, y: e.clientY });
+            resetIdleTimer();
         };
+
+        const handleInteraction = () => resetIdleTimer();
 
         document.addEventListener('click', handleGlobalHashClick);
         window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('scroll', handleInteraction, true);
+        window.addEventListener('keydown', handleInteraction);
+        
+        resetIdleTimer();
         const sequence = async () => {
             await new Promise(resolve => setTimeout(resolve, 800));
 
@@ -123,8 +141,11 @@ const App: React.FC = () => {
             clearTimeout(timer);
             clearTimeout(t);
             clearTimeout(ti);
+            if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
             document.removeEventListener('click', handleGlobalHashClick);
             window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('scroll', handleInteraction, true);
+            window.removeEventListener('keydown', handleInteraction);
         };
     }, [cursorControls, cameraControls]);
 
@@ -376,10 +397,10 @@ const App: React.FC = () => {
 
                         <motion.main
                             initial={{ opacity: 0, filter: 'blur(80px)', scale: 1.1 }}
-                            animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
+                            animate={{ opacity: 1, filter: isIdle ? "blur(10px)" : "blur(0px)", scale: 1 }}
                             transition={{
-                                duration: 1.8,
-                                delay: 0.8,
+                                duration:isIdle ?0.7: 1.8,
+                                delay:isIdle ?0: 0.8,
                                 ease: [0.22, 1, 0.36, 1]
                             }} className="flex-1 overflow-hidden">
                             <div
@@ -394,13 +415,41 @@ const App: React.FC = () => {
                             </div>
 
                         </motion.main>
-                        <Header onInquire={handleInquire} />
-                        <CameraHUD />
+                        <Header onInquire={handleInquire} isIdle={isIdle}/>
+                        <CameraHUD isIdle={isIdle}/>
+                        {/* Full Screen Idle Overlay */}
+                        <AnimatePresence>
+                            {isIdle && (
+                            <motion.div 
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none bg-black/40 z-[400] blend-difference"
+                            >
+                                <motion.div 
+                                initial={{ scale: 0.9, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                className="flex flex-col items-center gap-6"
+                                >
+                                    <Camera size={80} strokeWidth={1} className="text-white/60 animate-pulse relative z-10" />
+                                    <motion.div 
+                                        animate={{ scale: [1, 1.4], opacity: [0.2, 0] }}
+                                        transition={{ duration: 2, repeat: Infinity }}
+                                        className="absolute inset-0 border border-white/20 rounded-full"
+                                    />
+                                    <div className="flex flex-col items-center gap-1">
+                                        <span className="text-[12px] font-mono tracking-[0.8em] text-white/40 uppercase">System Idle</span>
+                                    </div>
+                                </motion.div>
+                            </motion.div>
+                            )}
+                        </AnimatePresence>
 
                         {/* RGB Meters - NO BLEND (Isolated to keep colors pure) */}
                         <div
                             className="fixed right-3.5 top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-[160] pointer-events-none"
-                        >
+                            style={{ filter: isIdle ? "blur(2px)" : "blur(0px)", }}
+                        >   
                             {[
                                 { color: '#ef4444', level: rLevel, label: 'R' },
                                 { color: '#22c55e', level: gLevel, label: 'G' },
@@ -426,7 +475,8 @@ const App: React.FC = () => {
                                 </div>
                             ))}
                         </div>
-                        <div className="fixed bottom-[35px] right-[120px] z-[160] flex items-center gap-4 pointer-events-none">
+                        <div className="fixed bottom-[35px] right-[120px] z-[160] flex items-center gap-4 pointer-events-none"
+                        style={{ filter: isIdle ? "blur(2px)" : "blur(0px)", }}>
                             {/* Record Status - Red Indicator (ISOLATED) */}
                             <div className="flex items-center gap-2" style={{ isolation: 'isolate', mixBlendMode: 'normal' }} >
                                 <div className="w-2.5 h-2.5 bg-[#ff0000] rounded-full animate-blink shadow-[0_0_10px_rgba(255,0,0,0.6)]" />
