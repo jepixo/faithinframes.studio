@@ -399,7 +399,7 @@ const App: React.FC = () => {
 
                         {/* RGB Meters - NO BLEND (Isolated to keep colors pure) */}
                         <div
-                            className="fixed left-3.5 top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-[160] pointer-events-none"
+                            className="fixed right-3.5 top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-[160] pointer-events-none"
                         >
                             {[
                                 { color: '#ef4444', level: rLevel, label: 'R' },

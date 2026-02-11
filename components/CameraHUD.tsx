@@ -32,23 +32,12 @@ const CameraHUD: React.FC = () => {
       />
 
       {/* Content Container */}
-      <div className="absolute inset-4 flex flex-col justify-between h-full">
+      <div className="absolute inset-4 flex flex-col justify-end h-full">
 
-        {/* Top Row - Battery */}
-        <div className="flex justify-end items-start pr-4 pt-4">
-
-          <div
-            className="hidden md:flex items-center gap-4 text-[10px] text-white mt-12 md:mt-0"
-            style={{ mixBlendMode: 'difference' }}>
-            <div className="w-8 h-4 border border-white/40 relative p-0.5">
-              <div className="h-full bg-white/80 w-[98%]" />
-              <div className="absolute -right-1.5 top-1 w-1 h-2 bg-white/40 rounded-r-sm" />
-            </div>
-          </div>
-        </div>
+        
         {/* RGB Meters - NO BLEND (Isolated to keep colors pure) */}
         <div
-          className="fixed left-[14.7px] top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-[160] pointer-events-none"
+          className="fixed right-[14.7px] top-1/2 -translate-y-1/2 flex flex-col items-center gap-3 z-[160] pointer-events-none"
         >
           {[
             { color: '#ef4444', label: 'R' },
