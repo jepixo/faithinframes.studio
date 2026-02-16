@@ -1,10 +1,10 @@
-# FAITH IN FRAMES | STUDIO SHOWCASE
+# [FAITH IN FRAMES](https://jepixo.github.io/faithinframes.studio/) | STUDIO SHOWCASE
 
 ![Faith in Frames Branding](https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&q=80&w=1600)
 
 > **"Where high-fidelity cinematography meets digital interaction."**
 
-Welcome to the digital home of **Faith in Frames**, a premium media house experience built to mirror the professional aesthetic of high-end cinematography equipment. This project is not just a portfolio—it is a cinematic journey through light, motion, and frame-perfect precision.
+Welcome to the digital home of **[Faith in Frames](https://jepixo.github.io/faithinframes.studio/)**, a premium media house experience built to mirror the professional aesthetic of high-end cinematography equipment. This project is not just a portfolio—it is a cinematic journey through light, motion, and frame-perfect precision.
 
 ---
 
