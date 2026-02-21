@@ -10,14 +10,51 @@ interface ContactProps {
 const Contact: React.FC<ContactProps> = ({ initialService = '' }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: initialService ? `Inquiry regarding: ${initialService}` : ''
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    setError(null);
+
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzh4aCkFPnneQ6r6Hx8stHYkMJSGP1ZKAH4Gx5XFrxYzGMrSczBaVdIbG3jtjBi6ZPt6w/exec';
+
+    try {
+      // Using URLSearchParams for 'application/x-www-form-urlencoded' 
+      // which is a "simple request" and works better with no-cors.
+      const params = new URLSearchParams();
+      params.append('name', formData.name);
+      params.append('email', formData.email);
+      params.append('message', formData.message);
+
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params.toString(),
+      });
+
       setIsSubmitted(true);
-    }, 1500);
+      setFormData({ name: '', email: '', message: '' });
+    } catch (err) {
+      console.error('Submission error:', err);
+      setError('TRANSMISSION FAILED. PLEASE TRY AGAIN OR CONTACT DIRECTLY.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -64,16 +101,45 @@ const Contact: React.FC<ContactProps> = ({ initialService = '' }) => {
                 <form onSubmit={handleSubmit} className="space-y-12">
                   <div className="space-y-8">
                     <div className="relative group">
-                      <input required type="text" className="w-full bg-transparent border-b-2 border-neutral-800 py-4 focus:border-white transition-colors outline-none text-lg font-black uppercase tracking-tighter placeholder:text-neutral-700 font-heading" placeholder="NAME IDENTIFIER" />
+                      <input
+                        required
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        className="w-full bg-transparent border-b-2 border-neutral-800 py-4 focus:border-white transition-colors outline-none text-lg font-black uppercase tracking-tighter placeholder:text-neutral-700 font-heading"
+                        placeholder="NAME IDENTIFIER"
+                      />
                       <div className="absolute bottom-0 left-0 h-0.5 w-0 group-focus-within:w-full bg-red-600 transition-all duration-500" />
                     </div>
                     <div className="relative group">
-                      <input required type="email" className="w-full bg-transparent border-b-2 border-neutral-800 py-4 focus:border-white transition-colors outline-none text-lg font-black uppercase tracking-tighter placeholder:text-neutral-700 font-heading" placeholder="ELECTRONIC MAIL" />
+                      <input
+                        required
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className="w-full bg-transparent border-b-2 border-neutral-800 py-4 focus:border-white transition-colors outline-none text-lg font-black uppercase tracking-tighter placeholder:text-neutral-700 font-heading"
+                        placeholder="ELECTRONIC MAIL"
+                      />
                     </div>
                     <div className="relative group">
-                      <textarea required rows={4} className="w-full bg-transparent border-b-2 border-neutral-800 py-4 focus:border-white transition-colors outline-none text-lg font-black uppercase tracking-tighter placeholder:text-neutral-700 resize-none font-heading" placeholder="PROJECT SPECIFICATIONS"></textarea>
+                      <textarea
+                        required
+                        rows={4}
+                        name="message"
+                        value={formData.message}
+                        onChange={handleChange}
+                        className="w-full bg-transparent border-b-2 border-neutral-800 py-4 focus:border-white transition-colors outline-none text-lg font-black uppercase tracking-tighter placeholder:text-neutral-700 resize-none font-heading"
+                        placeholder="PROJECT SPECIFICATIONS"
+                      ></textarea>
                     </div>
                   </div>
+
+                  {error && (
+                    <p className="text-red-600 font-mono text-[10px] uppercase tracking-wider">{error}</p>
+                  )}
+
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
